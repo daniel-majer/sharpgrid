@@ -1,37 +1,39 @@
 import { useQueries } from "@tanstack/react-query";
-import { COUNTRIES } from "../utils/data";
 import { getTotal, getIndicator } from "../utils/services";
-import type { CoverageResult } from "../types";
 
-const useCoverageData = (indicator: string) => {
-  return useQueries({
-    queries: COUNTRIES.map((country) => ({
-      queryKey: ["coverage", country.value, indicator],
-      queryFn: async () => {
-        const [total, filled] = await Promise.all([
-          getTotal(country.value),
-          getIndicator(country.value, indicator),
-        ]);
-        return { country, total, filled };
+export type UseCoverageDataResult = ReturnType<typeof useCoverageData>;
+
+const useCoverageData = (
+  country: string,
+  indicator: string,
+  showResult: boolean,
+) => {
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: ["total", country],
+        queryFn: () => getTotal(country),
+        enabled: showResult,
       },
-    })),
-    combine: (queries) => {
-      const isLoading = queries.some((q) => q.isLoading || q.isPending);
-      const isError = queries.some((q) => q.isError);
-      const results = queries
-        .map(({ data }) => {
-          if (!data) return null;
-          return {
-            country: data.country.label,
-            total: data.total,
-            filled: data.filled,
-          };
-        })
-        .filter((result): result is CoverageResult => result !== null);
-
-      return { results, isLoading, isError };
+      {
+        queryKey: ["indicator", country, indicator],
+        queryFn: () => getIndicator(country, indicator),
+        enabled: showResult,
+      },
+    ],
+    combine: (results) => {
+      return {
+        total: results[0].data,
+        filled: results[1].data,
+        loading: results[0].isLoading || results[1].isLoading,
+        error: results[0].isError || results[1].isError,
+        errorMsg:
+          (results[0].error as Error)?.message ||
+          (results[1].error as Error)?.message,
+      };
     },
   });
+  return { results };
 };
 
 export default useCoverageData;
