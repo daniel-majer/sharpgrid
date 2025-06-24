@@ -1,55 +1,58 @@
 import { formatNumber, percent } from "../utils/utils";
-import type { CoverageResult } from "../types";  
+import type { CoverageResult } from "../types";
 
-
-type TableBodyProps = {
-  results: CoverageResult[];
+const getBadgeColor = (pct: number) => {
+  if (pct > 80) return "bg-green-500";
+  if (pct > 40) return "bg-yellow-400";
+  return "bg-red-400";
 };
 
-const TableBody = ({ results }: TableBodyProps) => {
-  return (
-    <tbody>
-      {results.map(({ country, total, filled }) => {
-        const isSupported = filled > 0;
-        const pct = total ? (filled! / total) * 100 : 0;
-        return (
-          <tr
-            key={country}
-            className="border-t border-gray-100 transition hover:bg-gray-50"
-          >
-            <td className="px-4 py-2 font-semibold">{country}</td>
-            <td className="px-4 py-2 text-right">
-              {total ? formatNumber(total) : "-"}
-            </td>
-            <td className="px-4 py-2 text-right">
-              {isSupported ? (
-                formatNumber(filled!)
-              ) : (
-                <span className="text-gray-400 italic">Not supported</span>
-              )}
-            </td>
-            <td className="px-4 py-2 text-right">
-              {isSupported ? (
-                <div className="flex items-center justify-end gap-2">
-                  <div className="h-2 w-24 rounded bg-gray-200">
-                    <div
-                      className={`h-2 rounded ${pct > 80 ? "bg-green-500" : pct > 40 ? "bg-yellow-400" : "bg-red-400"}`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <span className="text-sm font-medium tabular-nums">
-                    {percent(filled!, total!)}
-                  </span>
+const TableBody = ({ results }: { results: CoverageResult[] }) => (
+  <tbody className="bg-white">
+    {results.map(({ country, total, filled }) => {
+      const isSupported = filled > 0;
+      const pct = total ? (filled / total) * 100 : 0;
+      return (
+        <tr
+          key={country}
+          className="border-t border-gray-200 transition hover:bg-[#EAF1FB] hover:shadow-md rounded-lg"
+        >
+          <td className="px-6 py-3 font-bold text-[#1B2A41] flex items-center gap-2 text-base">
+            <span className="text-xl">{country}</span>
+          </td>
+          <td className="px-6 py-3 text-right text-gray-700 font-medium">{total ? formatNumber(total) : "-"}</td>
+          <td className="px-6 py-3 text-right">
+            {isSupported ? (
+              <span className="inline-block rounded bg-[#1B2A41] px-3 py-1 text-white font-semibold text-sm shadow">
+                {formatNumber(filled)}
+              </span>
+            ) : (
+              <span className="text-gray-400 italic">Not supported</span>
+            )}
+          </td>
+          <td className="px-6 py-3 text-right">
+            {isSupported ? (
+              <div className="flex items-center gap-2 justify-end">
+                <div className="w-32 h-2 bg-gray-200 rounded overflow-hidden">
+                  <div
+                    className={`h-2 transition-all duration-500 rounded ${getBadgeColor(pct)}`}
+                    style={{ width: `${pct}%` }}
+                  />
                 </div>
-              ) : (
-                <span className="text-gray-400">—</span>
-              )}
-            </td>
-          </tr>
-        );
-      })}
-    </tbody>
-  );
-};
+                <span
+                  className={`ml-2 px-2 py-0.5 rounded text-xs font-bold text-white ${getBadgeColor(pct)}`}
+                >
+                  {percent(filled, total)}
+                </span>
+              </div>
+            ) : (
+              <span className="text-gray-400">—</span>
+            )}
+          </td>
+        </tr>
+      );
+    })}
+  </tbody>
+);
 
 export default TableBody;

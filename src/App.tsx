@@ -6,7 +6,6 @@ import Heading from "./components/Heading";
 
 function App() {
   const [indicator, setIndicator] = useState(INDICATORS[0].value);
-
   return (
     <div className="min-h-screen bg-gray-50 px-2 py-8 md:px-8">
       <div className="mx-auto max-w-4xl">

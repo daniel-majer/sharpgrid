@@ -2,14 +2,13 @@ import { LucideLoaderCircle } from "lucide-react";
 import TableBody from "./TableBody";
 import TableHead from "./TableHead";
 import useCoverageData from "../hooks/useCoverageData";
-import type { CoverageResult } from "../types";
 
 type CoverageTableProps = {
   indicator: string;
 };
 
 const CoverageTable = ({ indicator }: CoverageTableProps) => {
-  const { queries, isLoading, isError } = useCoverageData(indicator);
+  const { results, isLoading, isError } = useCoverageData(indicator);
 
   if (isLoading) {
     return (
@@ -24,23 +23,14 @@ const CoverageTable = ({ indicator }: CoverageTableProps) => {
     );
   }
 
-  const results = queries
-    .map(({ data }) => {
-      if (!data) return null;
-      return {
-        country: data.country.label,
-        total: data.total,
-        filled: data.filled,
-      };
-    })
-    .filter(Boolean) as CoverageResult[];
-
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full rounded-lg border border-gray-200 bg-white shadow-sm">
-        <TableHead />
-        <TableBody results={results} />
-      </table>
+    <div className="overflow-x-auto py-4">
+      <div className="mx-auto max-w-5xl rounded-2xl border border-[#1B2A41] bg-white px-4 py-6">
+        <table className="min-w-full divide-y divide-gray-200">
+          <TableHead />
+          <TableBody results={results} />
+        </table>
+      </div>
     </div>
   );
 };
